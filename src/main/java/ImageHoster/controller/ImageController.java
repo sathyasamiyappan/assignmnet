@@ -170,6 +170,7 @@ public class ImageController {
         }
         return tags;
     }
+//
 
 
     //The method receives the list of all tags

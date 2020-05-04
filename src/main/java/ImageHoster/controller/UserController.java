@@ -30,19 +30,100 @@ public class UserController {
     //Adds User type object to a model and returns 'users/registration.html' file
     @RequestMapping("users/registration")
     public String registration(Model model) {
+
         User user = new User();
         UserProfile profile = new UserProfile();
         user.setProfile(profile);
         model.addAttribute("User", user);
+
+        //I was not able to direct the page to error messageso i dsipalyed the meesage for password directky
+        //if password is okay it will take to login page
+        //else it will be again in registration page
+        //String error = "Password must contain atleast 1 alphabet, 1 number & 1 special character";
+        //model.addAttribute("passwordTypeError", error);
+
         return "users/registration";
     }
 
     //This controller method is called when the request pattern is of type 'users/registration' and also the incoming request is of POST type
     //This method calls the business logic and after the user record is persisted in the database, directs to login page
     @RequestMapping(value = "users/registration", method = RequestMethod.POST)
-    public String registerUser(User user) {
-        userService.registerUser(user);
-        return "redirect:/users/login";
+    public String registerUser(User user,Model model) {
+        ///sathya--
+
+        boolean valid=false;
+        String password=user.getPassword();
+        System.out.println("password---------------"+password);
+
+        if ((password.contains("@") || password.contains("#")
+                || password.contains("!") || password.contains("~")
+                || password.contains("$") || password.contains("%")
+                || password.contains("^") || password.contains("&")
+                || password.contains("*") || password.contains("(")
+                || password.contains(")") || password.contains("-")
+                || password.contains("+") || password.contains("/")
+                || password.contains(":") || password.contains(".")
+                || password.contains(", ") || password.contains("<")
+                || password.contains(">") || password.contains("?")
+                || password.contains("|"))) {
+            if (password.contains("a") || password.contains("b")
+                    || password.contains("c") || password.contains("i")
+                    || password.contains("d") || password.contains("j")
+                    || password.contains("e") || password.contains("k")
+                    || password.contains("f") || password.contains("l")
+                    || password.contains("g") || password.contains("m")
+                    || password.contains("h") || password.contains("n")
+                    || password.contains("q") || password.contains("o")
+                    || password.contains("r") || password.contains("p")
+                    || password.contains("s") || password.contains("u")
+                    || password.contains("t") || password.contains("v")
+                    || password.contains("w") || password.contains("y")
+                    || password.contains("x") || password.contains("z")
+            ) {
+                if (password.contains("A") || password.contains("B")
+                        || password.contains("C") || password.contains("I")
+                        || password.contains("D") || password.contains("J")
+                        || password.contains("E") || password.contains("K")
+                        || password.contains("F") || password.contains("L")
+                        || password.contains("G") || password.contains("M")
+                        || password.contains("H") || password.contains("N")
+                        || password.contains("Q") || password.contains("O")
+                        || password.contains("R") || password.contains("P")
+                        || password.contains("S") || password.contains("U")
+                        || password.contains("T") || password.contains("V")
+                        || password.contains("W") || password.contains("Y")
+                        || password.contains("X") || password.contains("Z")
+                ) {
+                    if (password.contains("0") || password.contains("1")
+                            || password.contains("3") || password.contains("3")
+                            || password.contains("4") || password.contains("5")
+                            || password.contains("6") || password.contains("7")
+                            || password.contains("8") || password.contains("9")
+                    ) {
+                        valid = true;
+                    }
+                }
+            }
+        }
+        //I was not able to direct the page to error messageso i dsipalyed the meesage for password directky
+        //if password is okay it will take to login page
+        //else it will be again in registration page
+            System.out.println("valid---------------"+valid);
+            if(valid==false) {
+                //User user = new User();
+                UserProfile profile = new UserProfile();
+                user.setProfile(profile);
+                model.addAttribute("User", user);
+
+                String error = "Password must contain atleast 1 alphabet, 1 number & 1 special character";
+                model.addAttribute("passwordTypeError", error);
+                return "users/registration";
+            }
+           else {
+            ///sathya--
+            userService.registerUser(user);
+            return "redirect:/users/login";
+           }
     }
 
     //This controller method is called when the request pattern is of type 'users/login'

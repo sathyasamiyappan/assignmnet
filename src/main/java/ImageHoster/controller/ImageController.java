@@ -46,7 +46,7 @@ public class ImageController {
     //Here a list of tags is added in the Model type object
     //this list is then sent to 'images/image.html' file and the tags are displayed
     @RequestMapping("/images/{id}")
-    public String showImage(@PathVariable("id")Integer id, Model model) {
+    public String showImage(@PathVariable("id") Integer id, Model model) {
         Image image = imageService.getImageByTitle(id);
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
@@ -92,14 +92,61 @@ public class ImageController {
     //The method first needs to convert the list of all the tags to a string containing all the tags separated by a comma and then add this string in a Model type object
     //This string is then displayed by 'edit.html' file as previous tags of an image
     @RequestMapping(value = "/editImage")
-    public String editImage(@RequestParam("imageId") Integer imageId, Model model) {
+    public String editImage(@RequestParam("imageId") Integer imageId, Model model, HttpSession session,User user) {
         Image image = imageService.getImage(imageId);
 
-        String tags = convertTagsToString(image.getTags());
-        model.addAttribute("image", image);
-        model.addAttribute("tags", tags);
-        return "images/edit";
+        User usera = (User) session.getAttribute("loggeduser");
+        System.out.println("logged user-----" + usera);
+        System.out.println("logged user getUsername()-----" + usera.getUsername());
+
+        User userb = image.getUser();
+        System.out.println("image user-----" + userb);
+        System.out.println(" userb =image.getUser();-----" + userb.getUsername());
+        String a=usera.getUsername();
+        String b=userb.getUsername();
+        System.out.println("a"+a);
+        System.out.println("b"+b);
+        System.out.println("a length"+a.length());
+        System.out.println("b length"+b.length());
+        int y=0;
+        boolean x=false;
+        if(a.length()<b.length()) {
+            y=a.length();
+        }
+        else{
+            y=b.length();
+        }
+        for(int i=0;i<y;i++)
+        {
+          if(  a.charAt(i)==b.charAt(i)) {
+             x=true;
+          }
+          else {
+              x=false;
+          }
+        }
+        System.out.println("x----"+x);
+        if ( x ) {
+          System.out.println("equal-----------");
+          String tags = convertTagsToString(image.getTags());
+          model.addAttribute("image", image);
+          model.addAttribute("tags", tags);
+          return "images/edit";
+       }
+       else {
+            System.out.println("equal----not not not-------");
+            String tags = convertTagsToString(image.getTags());
+            model.addAttribute("image", image);
+            model.addAttribute("tags", tags);
+            String error = "Only the owner of the image can edit the image";
+            model.addAttribute("editError", error);
+            return "images/image";
+       }
+
     }
+
+
+
 
     //This controller method is called when the request pattern is of type 'images/edit' and also the incoming request is of PUT type
     //The method receives the imageFile, imageId, updated image, along with the Http Session
@@ -132,6 +179,9 @@ public class ImageController {
         updatedImage.setDate(new Date());
 
         imageService.updateImage(updatedImage);
+
+
+
         return "redirect:/images/" + updatedImage.getTitle();
     }
 
@@ -140,11 +190,59 @@ public class ImageController {
     //The method calls the deleteImage() method in the business logic passing the id of the image to be deleted
     //Looks for a controller method with request mapping of type '/images'
     @RequestMapping(value = "/deleteImage", method = RequestMethod.DELETE)
-    public String deleteImageSubmit(@RequestParam(name = "imageId") Integer imageId) {
-        imageService.deleteImage(imageId);
-        return "redirect:/images";
-    }
+    public String deleteImageSubmit(Model model,@RequestParam(name = "imageId") Integer imageId, HttpSession session,User user) {
+        Image image = imageService.getImage(imageId);
 
+        User usera = (User) session.getAttribute("loggeduser");
+        System.out.println("logged user-----" + usera);
+        System.out.println("logged user getUsername()-----" + usera.getUsername());
+
+        User userb = image.getUser();
+        System.out.println("image user-----" + userb);
+        System.out.println(" userb =image.getUser();-----" + userb.getUsername());
+        String a=usera.getUsername();
+        String b=userb.getUsername();
+        System.out.println("a"+a);
+        System.out.println("b"+b);
+        System.out.println("a length"+a.length());
+        System.out.println("b length"+b.length());
+        int y=0;
+        boolean x=false;
+        if(a.length()<b.length()) {
+            y=a.length();
+        }
+        else{
+            y=b.length();
+        }
+        for(int i=0;i<y;i++)
+        {
+            if(  a.charAt(i)==b.charAt(i)) {
+                x=true;
+            }
+            else {
+                x=false;
+            }
+        }
+        System.out.println("x----"+x);
+
+     if ( x ) {
+         System.out.println("deleted");
+         imageService.deleteImage(imageId);
+
+         return "redirect:/images";
+     }
+    else {
+
+         System.out.println("not deleted");
+         String tags = convertTagsToString(image.getTags());
+         model.addAttribute("image", image);
+         model.addAttribute("tags", tags);
+         String error = "Only the owner of the image can delete the image";
+         model.addAttribute("deleteError",error);
+         return "images/image";
+
+    }
+}
 
     //This method converts the image to Base64 format
     private String convertUploadedFileToBase64(MultipartFile file) throws IOException {
@@ -189,3 +287,4 @@ public class ImageController {
         return tagString.toString();
     }
 }
+
